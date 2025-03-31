@@ -1,5 +1,4 @@
 import React from 'react'
-import Auth from './Auth'
 import Header from '../components/Header'
 import { Link } from 'react-router-dom';
 

@@ -7,6 +7,7 @@ import Home from './pages/Home'
 import Otp from './pages/Otp'
 import Auth from './pages/Auth'
 import Footer from './components/Footer'
+import WishList from './pages/WishList'
 
 function App() {
   const location = useLocation();
@@ -16,6 +17,8 @@ function App() {
       <Route path='/' element={<Home/>}/>
       <Route path='/login' element={<Auth/>}/>
       <Route path='/Otp' element={<Otp/>}/>
+      <Route path='/wishlist' element={<WishList/>}/>
+
 
      </Routes>
 
