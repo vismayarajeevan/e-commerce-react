@@ -1,10 +1,11 @@
 import React from 'react'
 import Auth from './Auth'
+import Header from '../components/Header'
 
 const Home = () => {
   return (
     <div>
-        <Auth/>
+      <Header insideHome={true}/>  
     </div>
   )
 }
