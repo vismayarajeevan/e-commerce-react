@@ -9,6 +9,7 @@ import Auth from './pages/Auth'
 import Footer from './components/Footer'
 import WishList from './pages/WishList'
 import Cart from './pages/Cart'
+import View from './pages/View'
 
 function App() {
   const location = useLocation();
@@ -20,6 +21,8 @@ function App() {
       <Route path='/Otp' element={<Otp/>}/>
       <Route path='/wishlist' element={<WishList/>}/>
       <Route path='/cart' element={<Cart/>}/>
+      <Route path='/view/:id' element={<View/>}/>
+
 
 
      </Routes>
