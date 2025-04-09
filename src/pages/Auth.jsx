@@ -2,28 +2,148 @@ import React, { useContext, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { LogIn, UserPlus, User, Mail, Lock, ShoppingBag } from 'lucide-react';
 import { AuthContext } from '../context/AuthContext';
+import { registerAPI } from '../services/allAPI';
 
 function Auth() {
   const [isSignup, setIsSignup] = useState(false); 
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-
+  
   const {login} = useContext(AuthContext)
   const navigate = useNavigate();
 
+   // state for login
+   const [loginFields, setLoginFields] = useState({
+    email: "",
+    password: "",
+  });
+
+  console.log(loginFields);
+  
+  
+  const [signupFields, setSignupFields] = useState({
+    userName: "",
+    email: "",
+    password: "",
+
+  });
+  console.log(signupFields);
+  
+
+    // stae for error messages
+    const [errors, setErrors] = useState({
+      userName: "",
+      email: "",
+      password: "",
+    });
+
+  // validate username
+  const validateUserName = (userName) => {
+    const usernameRegex = /^[A-Za-z]+$/;
+    return usernameRegex.test(userName.trim());
+  };
+
+  // validate email
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  // function for overall validation and give error message
+  const handleValidation = () => {
+    let valid = true;
+    let newErrors = {};
+
+    if (isSignup) {
+      if (!validateUserName(signupFields.userName)) {
+        valid = false;
+        newErrors.userName = "Username must contain only alphabets.";
+      } else if (signupFields.userName.trim().length < 3) {
+        valid = false;
+        newErrors.userName = "Username must be at least 3 characters long.";
+      }
+
+      if (!signupFields.password ) {
+        valid = false;
+        newErrors.password =
+          "Password is required.";
+      } 
+    }
+
+    // for email
+    const email = isSignup ? signupFields.email : loginFields.email;
+    if (!validateEmail(email)) {
+      valid = false;
+      newErrors.email = "Invalid email format.";
+    }
+
+   
+
+    // check all fields are filled in login page
+    if (!email || (!loginFields.password && !isSignup)) {
+      valid = false;
+      newErrors.password = "All fields are required.";
+    }
+
+    // Update the errors state
+    setErrors(newErrors);
+    return valid;
+  };
+
+    // register
+    const handleRegister = async (e) => {
+      e.preventDefault();
+      
+      if (handleValidation()) {
+        try {
+          const result = await registerAPI(signupFields);
+          console.log("register",result);
+          
+          
+          if (result.status === 200) {
+            if (result.data.isNewUser) {
+              navigate('/verify-otp', { 
+                state: { 
+                  email: signupFields.email,
+                  fromRegister: true 
+                } 
+              });
+            } else {
+              alert(result.data.message);
+              navigate('/Otp', { 
+                state: { 
+                  email: signupFields.email 
+                } 
+              });
+            }
+          } else {
+            setErrors(result.response?.data || { general: "Registration failed" });
+          }
+        } catch (error) {
+          setErrors({ 
+            general: error.response?.data?.message || "An error occurred during registration." 
+          });
+        }
+      }
+    };
+
   const handleLogin = () => {
-    // In a real app, you would verify credentials first
     login(); // Set user as logged in
     navigate('/'); // Redirect to home
   };
 
+    // function for submit form
+    const handleSubmit = (e) => {
+      e.preventDefault();
+  
+      if (isSignup) {
+        handleRegister(e);
+      } else {
+        handleLogin(e);
+      }
+    };
+
   const handleToggle = () => setIsSignup(!isSignup);
 
-   const handleSubmit = (e) => {
-    e.preventDefault();
-    navigate('/otp'); // Redirect to OTP page
-  };
+  
 
   return (
     <div className="min-h-screen flex">
@@ -66,8 +186,8 @@ function Auth() {
                       id="username"
                       type="text"
                       required={isSignup}
-                      value={username}
-                      onChange={(e) => setUsername(e.target.value)}
+                      value={signupFields.userName}
+                      onChange={(e) => setSignupFields({ ...signupFields, userName: e.target.value })}
                       className="appearance-none block w-full px-4 py-3 pl-12 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="Enter your username"
                     />
@@ -86,8 +206,11 @@ function Auth() {
                     id="email"
                     type="email"
                     required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    value={isSignup ? signupFields.email : loginFields.email}
+                    onChange={(e) => 
+                      isSignup
+                      ? setSignupFields({ ...signupFields, email: e.target.value })
+                      : setLoginFields({ ...loginFields, email: e.target.value })                    }
                     className="appearance-none block w-full px-4 py-3 pl-12 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="Enter your email"
                   />
@@ -105,8 +228,14 @@ function Auth() {
                     id="password"
                     type="password"
                     required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    value={isSignup ? signupFields.password : loginFields.password}
+                    onChange={(e) => 
+                      isSignup
+                      ? setSignupFields({
+                          ...signupFields,
+                          password: e.target.value,
+                        })
+                      : setLoginFields({ ...loginFields, password: e.target.value })                    }
                     className="appearance-none block w-full px-4 py-3 pl-12 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="Enter your password"
                   />
@@ -118,6 +247,8 @@ function Auth() {
               <button
                 type="submit"
                 className="w-full flex justify-center items-center px-4 py-3 bg-gradient-to-r from-blue-800 to-indigo-900 text-white font-medium rounded-lg hover:from-blue-900 hover:to-indigo-950 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-300"
+              onClick={handleSubmit}
+              
               >
                 {isSignup ? <UserPlus className="w-5 h-5 mr-2" /> : <LogIn className="w-5 h-5 mr-2" />}
                 {isSignup ? 'Sign Up' : 'Sign In'}
