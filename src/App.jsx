@@ -1,6 +1,4 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+
 import './App.css'
 import { Route, Routes, useLocation } from 'react-router-dom'
 import Home from './pages/Home'
@@ -10,6 +8,7 @@ import Footer from './components/Footer'
 import WishList from './pages/WishList'
 import Cart from './pages/Cart'
 import View from './pages/View'
+import ProtectedRoute from './components/ProtectRoute'
 
 function App() {
   const location = useLocation();
@@ -19,8 +18,19 @@ function App() {
       <Route path='/' element={<Home/>}/>
       <Route path='/login' element={<Auth/>}/>
       <Route path='/Otp' element={<Otp/>}/>
-      <Route path='/wishlist' element={<WishList/>}/>
-      <Route path='/cart' element={<Cart/>}/>
+
+      <Route path="/wishlist" element={
+          <ProtectedRoute>
+            <WishList />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/cart" element={
+          <ProtectedRoute>
+            <Cart />
+          </ProtectedRoute>
+        } />
+
       <Route path='/view/:id' element={<View/>}/>
 
 

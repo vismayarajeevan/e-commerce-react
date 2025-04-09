@@ -1,14 +1,22 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { LogIn, UserPlus, User, Mail, Lock, ShoppingBag } from 'lucide-react';
+import { AuthContext } from '../context/AuthContext';
 
 function Auth() {
   const [isSignup, setIsSignup] = useState(false); 
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+
+  const {login} = useContext(AuthContext)
   const navigate = useNavigate();
 
+  const handleLogin = () => {
+    // In a real app, you would verify credentials first
+    login(); // Set user as logged in
+    navigate('/'); // Redirect to home
+  };
 
   const handleToggle = () => setIsSignup(!isSignup);
 

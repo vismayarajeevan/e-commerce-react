@@ -1,11 +1,12 @@
 
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ShoppingCart, Heart, Truck, Search, Menu, X } from 'lucide-react';
+import { AuthContext } from '../context/AuthContext';
 
 const Header = ({ insideHome }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-
+  const { isLoggedIn, logout } = useContext(AuthContext);
 
   return (
     <nav className="fixed w-full bg-gradient-to-r from-blue-800 to-indigo-900 shadow-lg z-50">
@@ -45,23 +46,31 @@ const Header = ({ insideHome }) => {
               </div>
             )}
 
-            <Link
-              to="/wishlist"
-              className="flex items-center space-x-1 text-white hover:text-white/80 transition"
-            >
-              <Heart className="h-5 w-5" />
-              <span className="hidden lg:inline">Wishlist</span>
-              
-            </Link>
-
-            <Link
-              to="/cart"
-              className="flex items-center space-x-1 text-white hover:text-white/80 transition"
-            >
-              <ShoppingCart className="h-5 w-5" />
-              <span className="hidden lg:inline">Cart</span>
-              
-            </Link>
+          {  isLoggedIn?(
+ <>
+   <Link
+   to="/wishlist"
+   className="flex items-center space-x-1 text-white hover:text-white/80 transition"
+  >
+   <Heart className="h-5 w-5" />
+   <span className="hidden lg:inline">Wishlist</span>
+   
+  </Link>
+  
+  <Link
+   to="/cart"
+   className="flex items-center space-x-1 text-white hover:text-white/80 transition"
+  >
+   <ShoppingCart className="h-5 w-5" />
+   <span className="hidden lg:inline">Cart</span>
+   
+  </Link>
+ </>
+          ):(
+            <Link to="/login">Login</Link>
+          )
+           
+            }
           </div>
         </div>
 
