@@ -9,11 +9,15 @@ import WishList from './pages/WishList'
 import Cart from './pages/Cart'
 import View from './pages/View'
 import ProtectedRoute from './components/ProtectRoute'
+import { ToastContainer } from 'react-toastify'
 
 function App() {
   const location = useLocation();
   return (
     <>
+
+<ToastContainer/>
+
      <Routes>
       <Route path='/' element={<Home/>}/>
       <Route path='/login' element={<Auth/>}/>

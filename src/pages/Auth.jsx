@@ -3,6 +3,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import { LogIn, UserPlus, User, Mail, Lock, ShoppingBag } from 'lucide-react';
 import { AuthContext } from '../context/AuthContext';
 import { registerAPI } from '../services/allAPI';
+import { showToast } from '../reusableComponents/Toast';
+
+
 
 function Auth() {
   const [isSignup, setIsSignup] = useState(false); 
@@ -99,28 +102,27 @@ function Auth() {
           
           
           if (result.status === 200) {
-            if (result.data.isNewUser) {
-              navigate('/verify-otp', { 
-                state: { 
-                  email: signupFields.email,
-                  fromRegister: true 
-                } 
-              });
-            } else {
-              alert(result.data.message);
+            
+              showToast(`${result.data.message}`, "success");
+
               navigate('/Otp', { 
                 state: { 
                   email: signupFields.email 
                 } 
               });
             }
-          } else {
-            setErrors(result.response?.data || { general: "Registration failed" });
+           else {
+            showToast(`${result.response.data.message}`, "error");
           }
         } catch (error) {
-          setErrors({ 
-            general: error.response?.data?.message || "An error occurred during registration." 
-          });
+          console.error("Registration error:", error);
+
+          const errorMessage =
+            error.response?.data?.message ||
+            error.message ||
+            "Something went wrong!";
+  
+          showToast(errorMessage, "error");
         }
       }
     };
