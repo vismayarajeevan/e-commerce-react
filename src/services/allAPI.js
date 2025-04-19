@@ -9,3 +9,8 @@ export const registerAPI = async(reqBody)=>{
 export const verifyOtpAPI = async(reqBody)=>{
     return await commonAPI('POST',`${SERVER_URL}/auth/verifyotp`,reqBody)
 }
+
+
+export const resendOtpAPI = async(reqBody)=>{
+    return await commonAPI('POST',`${SERVER_URL}/auth/resendotp`,reqBody)
+}

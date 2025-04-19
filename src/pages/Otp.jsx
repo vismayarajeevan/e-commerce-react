@@ -5,7 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Mail, Key } from 'lucide-react';
 import OtpInput from 'react-otp-input';
-import { verifyOtpAPI } from '../services/allAPI';
+import { resendOtpAPI, verifyOtpAPI } from '../services/allAPI';
 import { showToast } from '../reusableComponents/Toast';
 
 function Otp() {
@@ -75,15 +75,31 @@ function Otp() {
 
   const handleResendOtp = async () => {
     try {
-      // Call your resend OTP API here
-      // Example: await resendOtpAPI({ email });
-      showToast('OTP resent successfully!', 'success');
+
+      const result = await resendOtpAPI({email})
+      console.log("resend",result);
+
+      if(result.status ==200){
+        showToast(`${result.data.message}`,'success')
+       
+      }
+      else{
+        showToast(result.data?.message || 'Failed to resend OTP', 'error');
+      }
+
       setCountdown(30);
       setCanResend(false);
       setOtp('');
+      
+     
+     
     } catch (error) {
       console.error('Resend OTP error:', error);
-      showToast('Failed to resend OTP', 'error');
+      showToast(error.result?.data?.message ||'Failed to resend OTP', 'error');
+
+      setCountdown(30);
+      setCanResend(false);
+      setOtp('');
     }
   };
 
