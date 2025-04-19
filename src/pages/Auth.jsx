@@ -134,7 +134,14 @@ function Auth() {
 
         if(result.status ===200){
           showToast(`${result.data.message}`, "success");
-          login();
+          
+
+          login({
+            userName: result.data.userName, 
+            email: loginFields.email,
+            token: result.data.token
+          });
+          localStorage.setItem('token', result.data.token);
           navigate('/');
         }
        else {

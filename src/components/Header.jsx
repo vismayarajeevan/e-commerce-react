@@ -1,11 +1,21 @@
+
 import React, { useContext, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ShoppingCart, Heart, Truck, Search, Menu, X, User, LogOut } from 'lucide-react';
+import { ShoppingCart, Heart, Truck, Search, Menu, X } from 'lucide-react';
 import { AuthContext } from '../context/AuthContext';
 
 const Header = ({ insideHome }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const { isLoggedIn, logout, user } = useContext(AuthContext); // Assuming user data is available
+
+  // Get the first letter of the username
+  const getFirstLetter = () => {
+    if (user && user.userName) {
+      return user.userName.charAt(0).toUpperCase();
+    }
+    return '';
+  };
 
   return (
     <nav className="fixed w-full bg-gradient-to-r from-blue-800 to-indigo-900 shadow-lg z-50">
@@ -56,18 +66,32 @@ const Header = ({ insideHome }) => {
                   <span className="hidden lg:inline">Cart</span>
                 </Link>
 
-                <div className="flex items-center space-x-2 ml-2">
-                  <div className="flex items-center justify-center h-8 w-8 rounded-full bg-indigo-700 text-white">
-                    <User className="h-4 w-4" />
-                  </div>
+                <div className="relative ml-2">
                   <button
-                    onClick={logout}
-                    className="flex items-center space-x-1 text-white hover:text-red-300 transition group"
-                    title="Logout"
+                    onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
+                    className="flex items-center justify-center h-8 w-8 rounded-full bg-indigo-700 text-white hover:bg-indigo-600 transition-colors"
                   >
-                    <LogOut className="h-5 w-5 group-hover:scale-110 transition-transform" />
-                    <span className="hidden lg:inline text-sm">Logout</span>
+                    {getFirstLetter()}
                   </button>
+
+                  {/* Dropdown menu */}
+                  {isProfileDropdownOpen && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                      <div className="px-4 py-2 text-sm text-gray-700 border-b">
+                        <p className="font-medium">{user?.userName || 'User'}</p>
+                        <p className="text-gray-500 text-xs">{user?.email || ''}</p>
+                      </div>
+                      <button
+                        onClick={() => {
+                          logout();
+                          setIsProfileDropdownOpen(false);
+                        }}
+                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        Sign out
+                      </button>
+                    </div>
+                  )}
                 </div>
               </>
             ) : (
@@ -75,7 +99,6 @@ const Header = ({ insideHome }) => {
                 to="/login"
                 className="flex items-center space-x-1 bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg transition-all duration-300 group"
               >
-                <User className="h-5 w-5 text-white group-hover:scale-110 transition-transform" />
                 <span className="text-white font-medium">Login</span>
               </Link>
             )}
@@ -113,11 +136,15 @@ const Header = ({ insideHome }) => {
                 <span>Cart</span>
               </Link>
 
+              <div className="px-4 py-3 border-t border-white/10">
+                <p className="text-white font-medium">{user?.userName || 'User'}</p>
+                <p className="text-white/70 text-sm">{user?.email || ''}</p>
+              </div>
+
               <button
                 onClick={logout}
                 className="flex items-center space-x-3 text-white hover:bg-white/10 w-full px-4 py-3 rounded-lg transition"
               >
-                <LogOut className="h-5 w-5" />
                 <span>Logout</span>
               </button>
             </>
@@ -126,7 +153,6 @@ const Header = ({ insideHome }) => {
               to="/login"
               className="flex items-center justify-center space-x-2 bg-white/10 hover:bg-white/20 px-4 py-3 rounded-lg transition"
             >
-              <User className="h-5 w-5 text-white" />
               <span className="text-white font-medium">Login / Register</span>
             </Link>
           )}
