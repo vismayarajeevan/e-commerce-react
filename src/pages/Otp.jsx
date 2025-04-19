@@ -38,6 +38,7 @@ function Otp() {
     return () => clearTimeout(timer);
   }, [countdown, canResend]);
 
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -49,17 +50,20 @@ function Otp() {
     setIsLoading(true);
     try {
       const response = await verifyOtpAPI({ email, otp });
+      console.log("otp",response);
+      
       if (response.status === 200) {
-        showToast(`${result.data.message}`, "success");
+        showToast(`${response.data.message}`, "success");
         // Store token and user data (adjust according to your auth flow)
         localStorage.setItem('token', response.data.token);
         localStorage.setItem('user', JSON.stringify({
           id: response.data.userId,
           isAdmin: response.data.isAdmin
         }));
-        navigate('/auth'); 
+        navigate('/login'); 
       } else {
-        showToast(response.data.message || 'Invalid OTP', 'error');
+        showToast(response.data || 'Invalid OTP', 'error');
+      
       }
     } catch (error) {
       console.error('OTP verification error:', error);
