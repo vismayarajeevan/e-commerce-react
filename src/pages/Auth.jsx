@@ -126,7 +126,9 @@ function Auth() {
   const handleLogin = (e) => {
     e.preventDefault();
     if (handleValidation()) {
-      setIsLoading(true); // Start loading
+      setIsLoading(true); 
+
+      
       // Simulate API call with timeout (replace with actual login API call)
       setTimeout(() => {
         login(); // Set user as logged in
