@@ -138,7 +138,7 @@ function Auth() {
           navigate('/');
         }
        else {
-        showToast(`${result.response.data.message}`, "error");
+        showToast(`${result.response.data}`, "error");
       }
         
         
