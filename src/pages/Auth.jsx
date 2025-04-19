@@ -3,7 +3,7 @@ import React, { useContext, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { LogIn, UserPlus, User, Mail, Lock, ShoppingBag } from 'lucide-react';
 import { AuthContext } from '../context/AuthContext';
-import { registerAPI } from '../services/allAPI';
+import { loginOtpAPI, registerAPI } from '../services/allAPI';
 import { showToast } from '../reusableComponents/Toast';
 
 function Auth() {
@@ -123,18 +123,36 @@ function Auth() {
     }
   };
 
-  const handleLogin = (e) => {
+  const handleLogin = async(e) => {
     e.preventDefault();
     if (handleValidation()) {
       setIsLoading(true); 
 
-      
-      // Simulate API call with timeout (replace with actual login API call)
-      setTimeout(() => {
-        login(); // Set user as logged in
-        navigate('/'); // Redirect to home
-        setIsLoading(false); // Stop loading
-      }, 1000);
+      try {
+        const result = await loginOtpAPI(loginFields)
+        console.log("login",result);
+
+        if(result.status ===200){
+          showToast(`${result.data.message}`, "success");
+          login();
+          navigate('/');
+        }
+       else {
+        showToast(`${result.response.data.message}`, "error");
+      }
+        
+        
+      } catch (error) {
+        console.error("Login error:", error);
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        "Something went wrong during login!";
+      showToast(errorMessage, "error");
+      }
+      finally {
+        setIsLoading(false); // Stop loading in any case
+      }
     }
   };
 
