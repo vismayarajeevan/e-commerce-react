@@ -117,6 +117,7 @@ const Home = () => {
                   </div>
                   <Link
                     to={`/view/${product._id}`}
+                    state={{ product }} 
                     className="inline-block w-full text-center bg-gradient-to-r from-blue-800 to-indigo-900 text-white py-2 px-4 rounded-lg hover:from-blue-900 hover:to-indigo-950 transition-colors duration-300"
                   >
                     View Details
