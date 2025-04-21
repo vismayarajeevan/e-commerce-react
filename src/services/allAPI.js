@@ -18,3 +18,7 @@ export const resendOtpAPI = async(reqBody)=>{
 export const loginOtpAPI = async(reqBody)=>{
     return await commonAPI('POST',`${SERVER_URL}/auth/login`,reqBody)
 }
+
+export const getAllProductAPI = async()=>{
+    return await commonAPI('GET',`${SERVER_URL}/api/all-products`,{})
+}
