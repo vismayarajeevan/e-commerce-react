@@ -1,15 +1,60 @@
 
 
 
-import React, { useState } from 'react'
-import { useLocation } from 'react-router-dom'
+import React, { useContext, useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import Header from '../components/Header'
 import { Heart, ShoppingCart, Star } from 'lucide-react';
+import { addWishlistAPI } from '../services/allAPI';
+import { AuthContext } from '../context/AuthContext';
+import { showToast } from '../reusableComponents/Toast';
+
 
 const View = () => {
   const { state } = useLocation();
   const product = state?.product;
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isInWishlist, setIsInWishlist] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const { isLoggedIn } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+
+
+  const handleWishlistAction = async () => {
+    if (!isLoggedIn) {
+        showToast('Please login to add items to your wishlist', 'warning');
+        navigate('/login', { state: { from: location.pathname } });
+        return;
+    }
+
+    if (!product?._id) return;
+
+    setIsLoading(true);
+    try {
+        const token = localStorage.getItem('token');
+        const reqHeader = {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json"
+        };
+
+        const response = await addWishlistAPI(product._id, reqHeader);
+        
+        if (response.status === 200) {
+            setIsInWishlist(!isInWishlist);
+            showToast(
+                isInWishlist 
+                    ? 'Removed from wishlist' 
+                    : 'Added to wishlist'
+            );
+        }
+    } catch (error) {
+        console.error("Wishlist error:", error);
+        showToast('Failed to update wishlist', 'error');
+    } finally {
+        setIsLoading(false);
+    }
+};
 
   if (!product) {
     return (
@@ -72,6 +117,7 @@ const View = () => {
             <div className="flex gap-4 pt-4">
               <button
                 className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-blue-800 to-indigo-900 text-white py-3 px-4 rounded-lg hover:from-blue-900 hover:to-indigo-950 transition-colors"
+                onClick={handleWishlistAction}
               >
                 <Heart className="h-5 w-5" />
                 Add to Wishlist
