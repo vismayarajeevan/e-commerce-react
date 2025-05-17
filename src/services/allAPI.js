@@ -32,5 +32,5 @@ export const getWishlistAPI = async(reqHeader) => {
 }
 
 export const removeFromWishlistAPI = async(productId, reqHeader) => {
-    return await commonAPI('DELETE', `${SERVER_URL}/api/wishlist/${productId}`, null, reqHeader)
+    return await commonAPI('DELETE', `${SERVER_URL}/api/wishlist/${productId}`, {}, reqHeader)
 }

@@ -5,7 +5,8 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Heart, ShoppingCart } from 'lucide-react';
 import Header from '../components/Header';
-import { getWishlistAPI } from '../services/allAPI';
+import { getWishlistAPI, removeFromWishlistAPI } from '../services/allAPI';
+import { showToast } from '../reusableComponents/Toast';
 
 const WishList = () => {
   const [wishlistItems, setWishlistItems] = useState([]);
@@ -22,6 +23,8 @@ const WishList = () => {
           "Content-Type": "application/json"
         };
         const result = await getWishlistAPI(reqHeader);
+        console.log("get",result);
+        
         
         if(result.status === 200) {
           setWishlistItems(result.data.wishlist);
@@ -40,6 +43,35 @@ const WishList = () => {
   useEffect(() => {
     getUserwishlist();
   }, []);
+
+  const handleRemoveFromWishlist = async (productId) => {
+  const token = localStorage.getItem('token');
+  
+  if (token) {
+    try {
+      const reqHeader = {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json"
+      };
+      
+      const result = await removeFromWishlistAPI(productId, reqHeader);
+      console.log("rem",result);
+      
+      
+      if (result.status === 200) {
+        // Update the wishlist by filtering out the removed item
+        setWishlistItems(prevItems => 
+          prevItems.filter(item => item._id !== productId)
+        );
+        showToast(`${result.data.message}`, 'success');
+      }
+    } catch (error) {
+      console.log(error);
+      showToast('Failed to remove from wishlist', 'error');
+    }
+  }
+};
+
 
   useEffect(() => {
     const intervalIds = {};
@@ -131,11 +163,13 @@ const WishList = () => {
                     <button
                       className="p-2 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition-colors"
                       aria-label="Remove from wishlist"
+                       onClick={() => handleRemoveFromWishlist(item._id)}
                     >
                       <Heart className="h-5 w-5 fill-red-600" />
                     </button>
                     <button
                       className="flex-1 flex items-center justify-center gap-2 bg-green-100 text-green-600 py-2 px-3 rounded-lg hover:bg-green-200 transition-colors"
+                     
                     >
                       <ShoppingCart className="h-5 w-5" />
                       Cart
