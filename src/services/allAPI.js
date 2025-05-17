@@ -30,3 +30,7 @@ export const addWishlistAPI = async(productId, reqHeader) => {
 export const getWishlistAPI = async(reqHeader) => {
     return await commonAPI('GET', `${SERVER_URL}/api/wishlist`, null, reqHeader)
 }
+
+export const removeFromWishlistAPI = async(productId, reqHeader) => {
+    return await commonAPI('DELETE', `${SERVER_URL}/api/wishlist/${productId}`, null, reqHeader)
+}
