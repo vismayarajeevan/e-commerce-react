@@ -23,16 +23,25 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('token');
   };
 
-  // Check if user is logged in on initial load
   useEffect(() => {
-    if (localStorage.getItem('isLoggedIn')) {
-      setIsLoggedIn(true);
-      const storedUser = localStorage.getItem('user');
-      if (storedUser) {
-        setUser(JSON.parse(storedUser));
-      }
+  const token = localStorage.getItem('token');
+  const storedLoginStatus = localStorage.getItem('isLoggedIn');
+  
+  if (token && storedLoginStatus === 'true') {
+    setIsLoggedIn(true);
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
     }
-  }, []);
+  } else {
+    // Clear all auth-related data if token is missing but isLoggedIn exists
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
+    setIsLoggedIn(false);
+    setUser(null);
+  }
+}, []);
 
   return (
     <AuthContext.Provider value={{ isLoggedIn, user, login, logout }}>
