@@ -14,3 +14,5 @@ If you are developing a production application, we recommend using TypeScript an
 
 
 <!-- ********************************************************* -->
+
+* Protect route for wishlist and add cart done using authContext and protect route.
