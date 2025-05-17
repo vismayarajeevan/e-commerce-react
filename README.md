@@ -23,6 +23,8 @@ AUTHENTICATION
 * avatar based on email in home page
 
 
-
+WISHLIST AND ADD CART
+-----------------------
 
 * Protect route for wishlist and add cart done using authContext and protect route.
+* 
