@@ -1,14 +1,11 @@
 
-
-
-import React, { useContext, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
-import Header from '../components/Header'
+import React, { useContext, useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import Header from '../components/Header';
 import { Heart, ShoppingCart, Star } from 'lucide-react';
-import { addWishlistAPI } from '../services/allAPI';
+import { addWishlistAPI, removeFromWishlistAPI, getWishlistAPI } from '../services/allAPI';
 import { AuthContext } from '../context/AuthContext';
 import { showToast } from '../reusableComponents/Toast';
-
 
 const View = () => {
   const { state } = useLocation();
@@ -19,42 +16,71 @@ const View = () => {
   const { isLoggedIn } = useContext(AuthContext);
   const navigate = useNavigate();
 
-
+  useEffect(() => {
+    const checkWishlistStatus = async () => {
+      if (isLoggedIn && product?._id) {
+        const token = localStorage.getItem('token');
+        const reqHeader = {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json"
+        };
+        
+        try {
+          const response = await getWishlistAPI(reqHeader);
+          if (response.status === 200) {
+            const isProductInWishlist = response.data.wishlist.some(
+              item => item._id === product._id
+            );
+            setIsInWishlist(isProductInWishlist);
+          }
+        } catch (error) {
+          console.error("Error checking wishlist:", error);
+        }
+      }
+    };
+    
+    checkWishlistStatus();
+  }, [isLoggedIn, product?._id]);
 
   const handleWishlistAction = async () => {
     if (!isLoggedIn) {
-        showToast('Please login to add items to your wishlist', 'warning');
-        navigate('/login', { state: { from: location.pathname } });
-        return;
+      showToast('Please login to add items to your wishlist', 'warning');
+      navigate('/login', { state: { from: location.pathname } });
+      return;
     }
 
     if (!product?._id) return;
 
     setIsLoading(true);
     try {
-        const token = localStorage.getItem('token');
-        const reqHeader = {
-            "Authorization": `Bearer ${token}`,
-            "Content-Type": "application/json"
-        };
+      const token = localStorage.getItem('token');
+      const reqHeader = {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json"
+      };
 
-        const response = await addWishlistAPI(product._id, reqHeader);
-        
-        if (response.status === 200) {
-            setIsInWishlist(!isInWishlist);
-            showToast(
-                isInWishlist 
-                    ? 'Removed from wishlist' 
-                    : 'Added to wishlist'
-            );
-        }
+      let response;
+      if (isInWishlist) {
+        response = await removeFromWishlistAPI(product._id, reqHeader);
+      } else {
+        response = await addWishlistAPI(product._id, reqHeader);
+      }
+      
+      if (response.status === 200) {
+        setIsInWishlist(!isInWishlist);
+        showToast(
+          isInWishlist 
+            ? 'Removed from wishlist' 
+            : 'Added to wishlist'
+        );
+      }
     } catch (error) {
-        console.error("Wishlist error:", error);
-        showToast('Failed to update wishlist', 'error');
+      console.error("Wishlist error:", error);
+      showToast('Failed to update wishlist', 'error');
     } finally {
-        setIsLoading(false);
+      setIsLoading(false);
     }
-};
+  };
 
   if (!product) {
     return (
@@ -116,11 +142,22 @@ const View = () => {
             {/* Action Buttons */}
             <div className="flex gap-4 pt-4">
               <button
-                className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-blue-800 to-indigo-900 text-white py-3 px-4 rounded-lg hover:from-blue-900 hover:to-indigo-950 transition-colors"
+                className={`flex-1 flex items-center justify-center gap-2 ${
+                  isInWishlist
+                    ? 'bg-gradient-to-r from-red-600 to-red-700'
+                    : 'bg-gradient-to-r from-blue-800 to-indigo-900'
+                } text-white py-3 px-4 rounded-lg hover:opacity-90 transition-colors`}
                 onClick={handleWishlistAction}
+                disabled={isLoading}
               >
-                <Heart className="h-5 w-5" />
-                Add to Wishlist
+                <Heart className={`h-5 w-5 ${isInWishlist ? 'fill-white' : ''}`} />
+                {isLoading ? (
+                  'Processing...'
+                ) : isInWishlist ? (
+                  `Remove from Wishlist`
+                ) : (
+                  `Add to Wishlist`
+                )}
               </button>
               <button
                 className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-green-600 to-green-700 text-white py-3 px-4 rounded-lg hover:from-green-700 hover:to-green-800 transition-colors"
@@ -176,7 +213,7 @@ const View = () => {
         </div>
       </div>
     </>  
-  )
-}
+  );
+};
 
 export default View;
