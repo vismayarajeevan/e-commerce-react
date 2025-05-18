@@ -1,11 +1,12 @@
-
 import React, { useContext, useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
-import { Heart, ShoppingCart, Star } from 'lucide-react';
-import { addWishlistAPI, removeFromWishlistAPI, getWishlistAPI } from '../services/allAPI';
+import { Heart, ShoppingCart, Star,Plus, Minus } from 'lucide-react';
+import { addWishlistAPI, removeFromWishlistAPI, getWishlistAPI,addToCartAPI } from '../services/allAPI';
 import { AuthContext } from '../context/AuthContext';
 import { showToast } from '../reusableComponents/Toast';
+
+
 
 const View = () => {
   const { state } = useLocation();
@@ -14,6 +15,8 @@ const View = () => {
   const [isInWishlist, setIsInWishlist] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { isLoggedIn } = useContext(AuthContext);
+   const [cartItem, setCartItem] = useState(null);
+  const [cartLoading, setCartLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -79,6 +82,42 @@ const View = () => {
       showToast('Failed to update wishlist', 'error');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+// add to cart 
+   const handleAddToCart = async () => {
+    if (!isLoggedIn) {
+      showToast('Please login to add items to your cart', 'warning');
+      navigate('/login', { state: { from: location.pathname } });
+      return;
+    }
+
+    if (!product?._id) return;
+
+    setCartLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      const reqHeader = {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json"
+      };
+
+      const response = await addToCartAPI(product._id, 1, reqHeader);
+      console.log("cart",response);
+      
+      if (response.status === 200) {
+        setCartItem({
+          product: product,
+          quantity: 1
+        });
+        showToast(`${response.data.message}`,'success');
+      }
+    } catch (error) {
+      console.error("Cart error:", error);
+      showToast('Failed to add to cart', 'error');
+    } finally {
+      setCartLoading(false);
     }
   };
 
@@ -159,12 +198,43 @@ const View = () => {
                   `Add to Wishlist`
                 )}
               </button>
-              <button
+              {/* <button
                 className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-green-600 to-green-700 text-white py-3 px-4 rounded-lg hover:from-green-700 hover:to-green-800 transition-colors"
               >
                 <ShoppingCart className="h-5 w-5" />
                 Add to Cart
+              </button> */}
+
+              {cartItem ? (
+              <div className="flex-1 flex items-center justify-between bg-gray-100 rounded-lg overflow-hidden">
+                <button 
+                  // onClick={handleDecrement}
+                  disabled={cartLoading}
+                  className="bg-gray-200 hover:bg-gray-300 h-full px-4 py-3 transition-colors disabled:opacity-50"
+                >
+                  <Minus className="h-5 w-5" />
+                </button>
+                <span className="font-medium text-lg">
+                  {cartItem.quantity}
+                </span>
+                <button 
+                  // onClick={handleIncrement}
+                  disabled={cartLoading}
+                  className="bg-gray-200 hover:bg-gray-300 h-full px-4 py-3 transition-colors disabled:opacity-50"
+                >
+                  <Plus className="h-5 w-5" />
+                </button>
+              </div>
+            ) : (
+              <button
+                className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-green-600 to-green-700 text-white py-3 px-4 rounded-lg hover:from-green-700 hover:to-green-800 transition-colors"
+                onClick={handleAddToCart}
+                disabled={cartLoading}
+              >
+                <ShoppingCart className="h-5 w-5" />
+                {cartLoading ? 'Adding...' : 'Add to Cart'}
               </button>
+            )}
             </div>
           </div>
 
@@ -217,3 +287,5 @@ const View = () => {
 };
 
 export default View;
+
+

@@ -34,3 +34,28 @@ export const getWishlistAPI = async(reqHeader) => {
 export const removeFromWishlistAPI = async(productId, reqHeader) => {
     return await commonAPI('DELETE', `${SERVER_URL}/api/wishlist/${productId}`, {}, reqHeader)
 }
+
+// Add to cart API
+export const addToCartAPI = async (productId, quantity, reqHeader) => {
+    return await commonAPI('POST', `${SERVER_URL}/api/cart/add`, { productId, quantity }, reqHeader)
+}
+
+// Get cart API
+export const getCartAPI = async (reqHeader) => {
+    return await commonAPI('GET', `${SERVER_URL}/api/cart`, null, reqHeader)
+}
+
+// Increment cart item API
+export const incrementCartItemAPI = async (productId, reqHeader) => {
+    return await commonAPI('PUT', `${SERVER_URL}/api/cart/increment/${productId}`, null, reqHeader)
+}
+
+// Decrement cart item API
+export const decrementCartItemAPI = async (productId, reqHeader) => {
+    return await commonAPI('PUT', `${SERVER_URL}/api/cart/decrement/${productId}`, null, reqHeader)
+}
+
+// Remove from cart API
+export const removeFromCartAPI = async (productId, reqHeader) => {
+    return await commonAPI('DELETE', `${SERVER_URL}/api/cart/remove/${productId}`, null, reqHeader)
+}
