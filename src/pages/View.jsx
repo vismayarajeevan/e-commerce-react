@@ -2,7 +2,7 @@ import React, { useContext, useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import { Heart, ShoppingCart, Star,Plus, Minus } from 'lucide-react';
-import { addWishlistAPI, removeFromWishlistAPI, getWishlistAPI,addToCartAPI } from '../services/allAPI';
+import { addWishlistAPI, removeFromWishlistAPI, getWishlistAPI,addToCartAPI,incrementCartItemAPI,getCartAPI } from '../services/allAPI';
 import { AuthContext } from '../context/AuthContext';
 import { showToast } from '../reusableComponents/Toast';
 
@@ -36,6 +36,17 @@ const View = () => {
             );
             setIsInWishlist(isProductInWishlist);
           }
+
+          // Check cart status
+          const cartResponse = await getCartAPI(reqHeader);
+          if (cartResponse.status === 200) {
+            const cartProduct = cartResponse.data.cart.find(
+              item => item.product._id === product._id
+            );
+            setCartItem(cartProduct || null);
+          }
+
+
         } catch (error) {
           console.error("Error checking wishlist:", error);
         }
@@ -121,6 +132,37 @@ const View = () => {
     }
   };
 
+  // increment quantity
+
+  const handleIncrement = async () => {
+    if (!isLoggedIn || !product?._id) return;
+
+    setCartLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      const reqHeader = {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json"
+      };
+
+      const response = await incrementCartItemAPI(product._id, reqHeader);
+      console.log("inc",response);
+      
+      if (response.status === 200) {
+        setCartItem(prev => ({
+          ...prev,
+          quantity: response.data.product.quantity
+        }));
+        showToast(`${response.data.message}`,'success');
+      }
+    } catch (error) {
+      console.error("Increment error:", error);
+      showToast('Failed to update quantity', 'error');
+    } finally {
+      setCartLoading(false);
+    }
+  };
+
   if (!product) {
     return (
       <>
@@ -198,12 +240,7 @@ const View = () => {
                   `Add to Wishlist`
                 )}
               </button>
-              {/* <button
-                className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-green-600 to-green-700 text-white py-3 px-4 rounded-lg hover:from-green-700 hover:to-green-800 transition-colors"
-              >
-                <ShoppingCart className="h-5 w-5" />
-                Add to Cart
-              </button> */}
+             
 
               {cartItem ? (
               <div className="flex-1 flex items-center justify-between bg-gray-100 rounded-lg overflow-hidden">
@@ -218,7 +255,7 @@ const View = () => {
                   {cartItem.quantity}
                 </span>
                 <button 
-                  // onClick={handleIncrement}
+                  onClick={handleIncrement}
                   disabled={cartLoading}
                   className="bg-gray-200 hover:bg-gray-300 h-full px-4 py-3 transition-colors disabled:opacity-50"
                 >

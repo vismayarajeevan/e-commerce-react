@@ -47,7 +47,7 @@ export const getCartAPI = async (reqHeader) => {
 
 // Increment cart item API
 export const incrementCartItemAPI = async (productId, reqHeader) => {
-    return await commonAPI('PUT', `${SERVER_URL}/api/cart/increment/${productId}`, null, reqHeader)
+    return await commonAPI('PUT', `${SERVER_URL}/api/cart/increment/${productId}`, {}, reqHeader)
 }
 
 // Decrement cart item API
