@@ -2,7 +2,7 @@ import React, { useContext, useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import { Heart, ShoppingCart, Star,Plus, Minus } from 'lucide-react';
-import { addWishlistAPI, removeFromWishlistAPI, getWishlistAPI,addToCartAPI,incrementCartItemAPI,getCartAPI } from '../services/allAPI';
+import { addWishlistAPI, removeFromWishlistAPI, getWishlistAPI,addToCartAPI,incrementCartItemAPI,getCartAPI,decrementCartItemAPI } from '../services/allAPI';
 import { AuthContext } from '../context/AuthContext';
 import { showToast } from '../reusableComponents/Toast';
 
@@ -163,6 +163,44 @@ const View = () => {
     }
   };
 
+  // decrement quantity
+
+const handleDecrement = async () => {
+  if (!isLoggedIn || !product?._id || !cartItem) return;
+
+  setCartLoading(true);
+  try {
+    const token = localStorage.getItem('token');
+    const reqHeader = {
+      "Authorization": `Bearer ${token}`,
+      "Content-Type": "application/json"
+    };
+
+    const response = await decrementCartItemAPI(product._id, reqHeader);
+    console.log("dec", response);
+    
+    if (response.status === 200) {
+      if (response.data.removed) {
+        // Item was removed from cart
+        setCartItem(null);
+        showToast('Item removed from cart', 'success');
+      } else {
+        // Quantity was decremented
+        setCartItem(prev => ({
+          ...prev,
+          quantity: response.data.product.quantity
+        }));
+        showToast('Quantity decreased', 'success');
+      }
+    }
+  } catch (error) {
+    console.error("Decrement error:", error);
+    showToast('Failed to update quantity', 'error');
+  } finally {
+    setCartLoading(false);
+  }
+};
+
   if (!product) {
     return (
       <>
@@ -245,7 +283,7 @@ const View = () => {
               {cartItem ? (
               <div className="flex-1 flex items-center justify-between bg-gray-100 rounded-lg overflow-hidden">
                 <button 
-                  // onClick={handleDecrement}
+                  onClick={handleDecrement}
                   disabled={cartLoading}
                   className="bg-gray-200 hover:bg-gray-300 h-full px-4 py-3 transition-colors disabled:opacity-50"
                 >
