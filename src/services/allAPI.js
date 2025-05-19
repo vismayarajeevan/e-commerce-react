@@ -42,7 +42,7 @@ export const addToCartAPI = async (productId, quantity, reqHeader) => {
 
 // Get cart API
 export const getCartAPI = async (reqHeader) => {
-    return await commonAPI('GET', `${SERVER_URL}/api/cart`, null, reqHeader)
+    return await commonAPI('GET', `${SERVER_URL}/api/cart`, {}, reqHeader)
 }
 
 // Increment cart item API
@@ -57,7 +57,7 @@ export const decrementCartItemAPI = async (productId, reqHeader) => {
 
 // Remove from cart API
 export const removeFromCartAPI = async (productId, reqHeader) => {
-    return await commonAPI('DELETE', `${SERVER_URL}/api/cart/remove/${productId}`, null, reqHeader)
+    return await commonAPI('DELETE', `${SERVER_URL}/api/cart/remove/${productId}`, {}, reqHeader)
 }
 
 export const emptyCartAPI = async (reqHeader) => {
