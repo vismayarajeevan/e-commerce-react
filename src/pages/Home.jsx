@@ -9,6 +9,7 @@ const Home = () => {
   const [allProducts, setAllProducts] = useState([])
   const [currentImageIndex, setCurrentImageIndex] = useState({})
   const [currentPage, setCurrentPage] = useState(1);
+  const [loading, setLoading] = useState(true); // Add loading state
   const productPerPage = 8;
 
   // Pagination calculations
@@ -20,8 +21,10 @@ const Home = () => {
     currentPageProductLastIndex
   );
 
+
   const getAllProduct = async () => {
     try {
+      setLoading(true); // Set loading to true when starting fetch
       const result = await getAllProductAPI()
       console.log("API Response:", result)
       
@@ -39,8 +42,11 @@ const Home = () => {
     } catch (error) {
       console.error("Error fetching products:", error)
       setAllProducts([]) // Ensure empty array on error
+    } finally {
+      setLoading(false); // Set loading to false when done
     }
   }
+
 
   useEffect(() => {
     getAllProduct()
@@ -77,6 +83,20 @@ const Home = () => {
       setCurrentPage(currentPage - 1);
     }
   };
+
+  // Loading state UI
+if (loading) {
+  return (
+    <>
+      <Header insideHome={true} />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24">
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        </div>
+      </div>
+    </>
+  );
+}
 
   return (
     <div>
