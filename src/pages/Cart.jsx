@@ -43,7 +43,7 @@ const Cart = () => {
 
   
   // increment
-  
+
    const handleIncrement = async (productId) => {
   if (!isLoggedIn || !productId) return;
 
@@ -117,6 +117,7 @@ const handleDecrement = async (productId) => {
     }
   };
 
+  
   // Empty cart
   const emptyCart = async () => {
     try {
