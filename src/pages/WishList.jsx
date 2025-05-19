@@ -1,6 +1,5 @@
 
 
-
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Heart, ShoppingCart } from 'lucide-react';
@@ -11,6 +10,7 @@ import { showToast } from '../reusableComponents/Toast';
 const WishList = () => {
   const [wishlistItems, setWishlistItems] = useState([]);
   const [currentImageIndex, setCurrentImageIndex] = useState({});
+  const [loading, setLoading] = useState(true); // Add loading state
   const navigate = useNavigate();
 
   const getUserwishlist = async() => {
@@ -22,9 +22,9 @@ const WishList = () => {
           "Authorization": `Bearer ${token}`,
           "Content-Type": "application/json"
         };
+        setLoading(true); // Set loading to true when starting fetch
         const result = await getWishlistAPI(reqHeader);
         console.log("get",result);
-        
         
         if(result.status === 200) {
           setWishlistItems(result.data.wishlist);
@@ -36,7 +36,12 @@ const WishList = () => {
         }
       } catch (error) {
         console.log(error);
+        showToast('Failed to load wishlist', 'error');
+      } finally {
+        setLoading(false); // Set loading to false when done
       }
+    } else {
+      setLoading(false); // Also set to false if no token
     }
   }
 
@@ -45,33 +50,30 @@ const WishList = () => {
   }, []);
 
   const handleRemoveFromWishlist = async (productId) => {
-  const token = localStorage.getItem('token');
-  
-  if (token) {
-    try {
-      const reqHeader = {
-        "Authorization": `Bearer ${token}`,
-        "Content-Type": "application/json"
-      };
-      
-      const result = await removeFromWishlistAPI(productId, reqHeader);
-      console.log("rem",result);
-      
-      
-      if (result.status === 200) {
-        // Update the wishlist by filtering out the removed item
-        setWishlistItems(prevItems => 
-          prevItems.filter(item => item._id !== productId)
-        );
-        showToast(`${result.data.message}`, 'success');
+    const token = localStorage.getItem('token');
+    
+    if (token) {
+      try {
+        const reqHeader = {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json"
+        };
+        
+        const result = await removeFromWishlistAPI(productId, reqHeader);
+        console.log("rem",result);
+        
+        if (result.status === 200) {
+          setWishlistItems(prevItems => 
+            prevItems.filter(item => item._id !== productId)
+          );
+          showToast(`${result.data.message}`, 'success');
+        }
+      } catch (error) {
+        console.log(error);
+        showToast('Failed to remove from wishlist', 'error');
       }
-    } catch (error) {
-      console.log(error);
-      showToast('Failed to remove from wishlist', 'error');
     }
-  }
-};
-
+  };
 
   useEffect(() => {
     const intervalIds = {};
@@ -92,6 +94,20 @@ const WishList = () => {
       Object.values(intervalIds).forEach(clearInterval);
     };
   }, [wishlistItems]);
+
+  // Loading state UI
+  if (loading) {
+    return (
+      <>
+        <Header />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24">
+          <div className="flex justify-center items-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+          </div>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>
@@ -163,13 +179,12 @@ const WishList = () => {
                     <button
                       className="p-2 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition-colors"
                       aria-label="Remove from wishlist"
-                       onClick={() => handleRemoveFromWishlist(item._id)}
+                      onClick={() => handleRemoveFromWishlist(item._id)}
                     >
                       <Heart className="h-5 w-5 fill-red-600" />
                     </button>
                     <button
                       className="flex-1 flex items-center justify-center gap-2 bg-green-100 text-green-600 py-2 px-3 rounded-lg hover:bg-green-200 transition-colors"
-                     
                     >
                       <ShoppingCart className="h-5 w-5" />
                       Cart
