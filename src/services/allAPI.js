@@ -59,3 +59,8 @@ export const decrementCartItemAPI = async (productId, reqHeader) => {
 export const removeFromCartAPI = async (productId, reqHeader) => {
     return await commonAPI('DELETE', `${SERVER_URL}/api/cart/remove/${productId}`, null, reqHeader)
 }
+
+export const emptyCartAPI = async (reqHeader) => {
+    return await commonAPI('DELETE', `${SERVER_URL}/api/cart/empty`, {}, reqHeader)
+}
+
