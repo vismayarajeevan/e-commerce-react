@@ -6,12 +6,18 @@ import Header from '../components/Header'
 import { Link } from 'react-router-dom';
 import { getAllProductAPI } from '../services/allAPI';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useSearch } from '../context/SearchContext';
+
+
 
 const Home = () => {
   const [allProducts, setAllProducts] = useState([])
   const [currentImageIndex, setCurrentImageIndex] = useState({})
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
+
+  const { searchQuery } = useSearch();
+
   const productPerPage = 8;
 
   // Pagination calculations
@@ -23,33 +29,40 @@ const Home = () => {
     currentPageProductLastIndex
   );
 
-  const getAllProduct = async () => {
-    try {
-      setLoading(true);
-      const result = await getAllProductAPI()
-      console.log("API Response:", result)
-      
-      if(result.status === 200 && result.data.length > 0) {
-        setAllProducts(result.data)
-        const initialIndices = {}
-        result.data.forEach(product => {
-          initialIndices[product._id] = 0
-        })
-        setCurrentImageIndex(initialIndices)
-      } else {
-        setAllProducts([])
-      }
-    } catch (error) {
-      console.error("Error fetching products:", error)
-      setAllProducts([])
-    } finally {
-      setLoading(false);
-    }
-  }
+  
 
-  useEffect(() => {
-    getAllProduct()
-  }, [])
+  const getAllProduct = async (searchKey) => {
+  try {
+    setLoading(true);
+    const result = await getAllProductAPI(searchKey)
+    console.log("API Response:", result)
+    
+    if(result.status === 200 && result.data.length > 0) {
+      setAllProducts(result.data)
+      const initialIndices = {}
+      result.data.forEach(product => {
+        initialIndices[product._id] = 0
+      })
+      setCurrentImageIndex(initialIndices)
+    } else {
+      setAllProducts([])
+    }
+  } catch (error) {
+    console.error("Error fetching products:", error)
+    setAllProducts([])
+  } finally {
+    setLoading(false);
+  }
+}
+
+ 
+
+useEffect(() => {
+  setCurrentPage(1); // Reset pagination
+  getAllProduct(searchQuery);
+}, [searchQuery]);
+
+
 
   useEffect(() => {
     const intervalIds = {}

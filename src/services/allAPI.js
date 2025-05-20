@@ -19,9 +19,11 @@ export const loginOtpAPI = async(reqBody)=>{
     return await commonAPI('POST',`${SERVER_URL}/auth/login`,reqBody)
 }
 
-export const getAllProductAPI = async()=>{
-    return await commonAPI('GET',`${SERVER_URL}/api/all-products`,{})
+export const getAllProductAPI = async(searchKey)=>{
+    return await commonAPI('GET',`${SERVER_URL}/api/all-products?search=${searchKey}`,{})
 }
+
+
 
 export const addWishlistAPI = async(productId, reqHeader) => {
     return await commonAPI('POST', `${SERVER_URL}/api/wishlist/add`, { productId }, reqHeader)
