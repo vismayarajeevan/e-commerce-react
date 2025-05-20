@@ -12,8 +12,10 @@
   "dependencies": {
     "@tailwindcss/vite": "^4.0.17",
     "axios": "^1.8.4",
+    "bootstrap": "^5.3.6",
     "lucide-react": "^0.485.0",
     "react": "^19.0.0",
+    "react-bootstrap": "^2.10.10",
     "react-dom": "^19.0.0",
     "react-otp-input": "^3.1.1",
     "react-router-dom": "^7.4.1",
